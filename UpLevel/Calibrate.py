@@ -45,11 +45,11 @@ class CarAdmin():
 
     def TurnLeft(self):
         self.State = 'l'
-        self.Send_Direct_Order(order='l')
+        self.Send_Direct_Order(order='l', data1=90, data2 = 90)
 
     def TurnRight(self):
         self.state = 'r'
-        self.Send_Direct_Order(order='r')
+        self.Send_Direct_Order(order='r', data1=90, data2 = 90)
 
     def Forward(self):
         self.state = 'f'
@@ -96,7 +96,10 @@ class CarAdmin():
             self.port.write([order])
             self.port.write([data1])
             self.port.write([data2])
-            self.last_order = order
+            if order in ['l', 'r']:
+                self.last_order = 'k'
+            else:
+                self.last_order = order
             self.last_data1 = data1
             self.last_data2 = data2
             self.send_msg_time = time.time()
@@ -127,15 +130,17 @@ class CarAdmin():
                                    data1=self.last_data1,
                                    data2=self.last_data2)
             self.send_msg_time = time.time()
-            print "resent\n"
+            # print "resent"+self.last_order +'\n'
 
     def rcv_uart_msg(self):
         byte_2_read = self.port.inWaiting()
-        if byte_2_read >= 2:
+        if byte_2_read >= 4:
             rcv = self.port.read(byte_2_read)
+            # if 'l_ok' in rcv or 'r_ok' in rcv:
+            #     self.last_order = 'k'
             # if 'ok' in rcv:
             #     self.last_order = 0
-            print 'recv:', rcv
+            # print 'recv:', rcv
 
     def Run(self):
         self.calibra_panel = Tkinter.Tk()
